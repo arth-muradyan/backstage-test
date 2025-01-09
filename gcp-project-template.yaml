@@ -1,0 +1,62 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: gcp-project-creation
+  title: Create GCP Project
+  description: This template creates a GCP project using Terraform.
+  tags:
+    - terraform
+    - gcp
+spec:
+  owner: team-name
+  type: service
+
+  parameters:
+    - title: Project Information
+      properties:
+        project_id:
+          title: Project ID
+          description: Enter a unique GCP Project ID.
+          type: string
+        project_name:
+          title: Project Name
+          description: Enter the name of your GCP Project.
+          type: string
+        organization_id:
+          title: Organization ID
+          description: GCP Organization ID.
+          type: string
+        billing_account:
+          title: Billing Account
+          description: GCP Billing Account.
+          type: string
+        credentials_file_path:
+          title: Service Account Credentials Path
+          description: Path to your service account JSON file.
+          type: string
+      required:
+        - project_id
+        - project_name
+        - organization_id
+        - billing_account
+        - credentials_file_path
+
+  steps:
+    - id: terraform-init
+      name: Initialize Terraform
+      action: scaffolder:execute
+      input:
+        script: |
+          terraform init
+
+    - id: terraform-apply
+      name: Apply Terraform Configuration
+      action: scaffolder:execute
+      input:
+        script: |
+          terraform apply -auto-approve \
+            -var="project_id={{ parameters.project_id }}" \
+            -var="project_name={{ parameters.project_name }}" \
+            -var="organization_id={{ parameters.organization_id }}" \
+            -var="billing_account={{ parameters.billing_account }}" \
+            -var="credentials_file_path={{ parameters.credentials_file_path }}"
