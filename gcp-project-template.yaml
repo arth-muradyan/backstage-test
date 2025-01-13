@@ -29,10 +29,11 @@ spec:
           title: Billing Account
           description: GCP Billing Account.
           type: string
-        credentials_file_path:
-          title: Service Account Credentials Path
-          description: Path to your service account JSON file.
+        service_account_key:
+          title: Service Account Key (JSON)
+          description: Paste the full JSON key for your GCP service account.
           type: string
+          format: password
       required:
         - project_id
         - project_name
@@ -41,6 +42,31 @@ spec:
         - credentials_file_path
 
   steps:
+    - id: write-terraform-files
+      name: Write Terraform Files
+      action: scaffolder:execute
+      input:
+        script: |
+          echo 'provider "google" {
+            credentials = <<EOT
+{{ parameters.service_account_key }}
+EOT
+            project     = "{{ parameters.project_id }}"
+            region      = "us-central1"
+          }' > main.tf
+
+          echo 'resource "google_project" "default" {
+            name       = "{{ parameters.project_name }}"
+            project_id = "{{ parameters.project_id }}"
+            org_id     = "{{ parameters.organization_id }}"
+            billing_account = "{{ parameters.billing_account }}"
+          }' >> main.tf
+
+          echo 'variable "project_id" {}
+          variable "project_name" {}
+          variable "organization_id" {}
+          variable "billing_account" {}' > variables.tf
+
     - id: terraform-init
       name: Initialize Terraform
       action: scaffolder:execute
@@ -53,9 +79,4 @@ spec:
       action: scaffolder:execute
       input:
         script: |
-          terraform apply -auto-approve \
-            -var="project_id={{ parameters.project_id }}" \
-            -var="project_name={{ parameters.project_name }}" \
-            -var="organization_id={{ parameters.organization_id }}" \
-            -var="billing_account={{ parameters.billing_account }}" \
-            -var="credentials_file_path={{ parameters.credentials_file_path }}"
+          terraform apply -auto-approve
