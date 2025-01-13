@@ -9,5 +9,5 @@ metadata:
     - gcp
 spec:
   type: service
-  owner: team-name
+  owner: users
   path: ./template.yaml
