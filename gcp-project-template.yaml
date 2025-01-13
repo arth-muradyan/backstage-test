@@ -53,14 +53,14 @@ spec:
             EOT
             project     = "{{ parameters.project_id }}"
             region      = "us-central1"
-          }' > main.tf
+            }' > main.tf
 
           echo 'resource "google_project" "default" {
             name       = "{{ parameters.project_name }}"
             project_id = "{{ parameters.project_id }}"
             org_id     = "{{ parameters.organization_id }}"
             billing_account = "{{ parameters.billing_account }}"
-          }' >> main.tf
+            }' >> main.tf
 
           echo 'variable "project_id" {}
           variable "project_name" {}
