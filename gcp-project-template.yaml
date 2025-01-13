@@ -10,7 +10,6 @@ metadata:
 spec:
   owner: team-name
   type: service
-
   parameters:
     - title: Project Information
       properties:
