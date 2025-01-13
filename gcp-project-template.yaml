@@ -48,24 +48,29 @@ spec:
       input:
         script: |
           echo 'provider "google" {
-            credentials = <<EOT
-            {{ parameters.service_account_key }}
-            EOT
+            credentials = "${SERVICE_ACCOUNT_KEY}"
             project     = "{{ parameters.project_id }}"
             region      = "us-central1"
-            }' > main.tf
+          }' > main.tf
 
           echo 'resource "google_project" "default" {
             name       = "{{ parameters.project_name }}"
             project_id = "{{ parameters.project_id }}"
             org_id     = "{{ parameters.organization_id }}"
             billing_account = "{{ parameters.billing_account }}"
-            }' >> main.tf
+          }' >> main.tf
 
           echo 'variable "project_id" {}
           variable "project_name" {}
           variable "organization_id" {}
           variable "billing_account" {}' > variables.tf
+
+    - id: export-service-account-key
+      name: Export Service Account Key
+      action: scaffolder:execute
+      input:
+        script: |
+          export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
 
     - id: terraform-init
       name: Initialize Terraform
