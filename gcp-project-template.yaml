@@ -49,8 +49,8 @@ spec:
         script: |
           echo 'provider "google" {
             credentials = <<EOT
-          {{ parameters.service_account_key }}
-          EOT
+            {{ parameters.service_account_key }}
+            EOT
             project     = "{{ parameters.project_id }}"
             region      = "us-central1"
           }' > main.tf
