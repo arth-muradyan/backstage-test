@@ -8,7 +8,7 @@ metadata:
     - terraform
     - gcp
 spec:
-  owner: team-name
+  owner: users
   type: service
   parameters:
     - title: Project Information
