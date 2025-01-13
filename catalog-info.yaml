@@ -1,9 +1,13 @@
 apiVersion: backstage.io/v1alpha1
-kind: Component
+kind: Template
 metadata:
-  name: backstage-test
-  annotations:
-    github.com/project-slug: arth-muradyan/backstage-test
+  name: gcp-project-template
+  title: GCP Project Creation
+  description: A Backstage template to create GCP projects using Terraform.
+  tags:
+    - terraform
+    - gcp
 spec:
-  type: other
-  lifecycle: unknown
+  type: service
+  owner: team-name
+  path: ./template.yaml
