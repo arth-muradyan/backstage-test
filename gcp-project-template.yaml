@@ -44,58 +44,44 @@ spec:
   steps:
     - id: write-terraform-files
       name: Write Terraform Files
-      action: scaffolder:execute
+      action: scaffolder:script
       input:
-        command: |
-          echo "Writing Terraform configuration files..."
-          cat <<EOF > main.tf
-          provider "google" {
-            credentials = file("service-account-key.json")
-            project     = "${{ parameters.project_id }}"
+        script: |
+          echo 'provider "google" {
+            credentials = "${SERVICE_ACCOUNT_KEY}"
+            project     = "{{ parameters.project_id }}"
             region      = "us-central1"
-          }
+          }' > main.tf
 
-          resource "google_project" "default" {
-            name           = "${{ parameters.project_name }}"
-            project_id     = "${{ parameters.project_id }}"
-            org_id         = "${{ parameters.organization_id }}"
-            billing_account = "${{ parameters.billing_account }}"
-          }
-          EOF
+          echo 'resource "google_project" "default" {
+            name       = "{{ parameters.project_name }}"
+            project_id = "{{ parameters.project_id }}"
+            org_id     = "{{ parameters.organization_id }}"
+            billing_account = "{{ parameters.billing_account }}"
+          }' >> main.tf
 
-          echo "Writing variables file..."
-          cat <<EOF > variables.tf
-          variable "project_id" {}
+          echo 'variable "project_id" {}
           variable "project_name" {}
           variable "organization_id" {}
-          variable "billing_account" {}
-          EOF
+          variable "billing_account" {}' > variables.tf
 
-          echo "Saving service account key..."
-          echo '${{ parameters.service_account_key }}' > service-account-key.json
-          echo "Terraform configuration files and service account key written successfully."
+    - id: export-service-account-key
+      name: Export Service Account Key
+      action: scaffolder:script
+      input:
+        script: |
+          export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
 
     - id: terraform-init
       name: Initialize Terraform
-      action: scaffolder:execute
+      action: scaffolder:script
       input:
-        command: |
-          echo "Initializing Terraform..."
+        script: |
           terraform init
 
     - id: terraform-apply
       name: Apply Terraform Configuration
-      action: scaffolder:execute
+      action: scaffolder:script
       input:
-        command: |
-          echo "Applying Terraform configuration..."
+        script: |
           terraform apply -auto-approve
-
-    - id: cleanup
-      name: Clean Up
-      action: scaffolder:execute
-      input:
-        command: |
-          echo "Cleaning up temporary files..."
-          rm -f main.tf variables.tf service-account-key.json
-          echo "Cleanup complete."
