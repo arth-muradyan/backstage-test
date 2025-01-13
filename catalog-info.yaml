@@ -10,4 +10,4 @@ metadata:
 spec:
   type: service
   owner: users
-  path: ./template.yaml
+  path: ./gcp-project-template.yaml
