@@ -3,22 +3,34 @@ kind: Template
 metadata:
   name: terraform-gcp-project
   title: Create GCP Project (Terraform)
-  description: Runs Terraform commands using built-in script-like actions
+  description: Runs Terraform commands using built-in shell action
 spec:
-  owner: team
+  owner: users
   type: service
   parameters:
     - title: GCP Project Information
       properties:
         project_id:
           title: Project ID
+          description: GCP Project ID
+          type: string
+        project_name:
+          title: Project Name
+          description: Human-friendly name for the project
+          type: string
+        org_id:
+          title: Organization ID
+          description: GCP Organization ID
           type: string
         service_account_key:
           title: Service Account Key (JSON)
+          description: Paste the full JSON key for your GCP service account.
           type: string
           format: password
       required:
         - project_id
+        - project_name
+        - org_id
         - service_account_key
 
   steps:
@@ -35,12 +47,15 @@ spec:
             }
 
             resource "google_project" "default" {
-              name       = "Example GCP Project"
+              name       = "${PROJECT_NAME}"
               project_id = "${PROJECT_ID}"
+              org_id     = "${ORG_ID}"
             }
             EOF
         env:
           PROJECT_ID: ${{ parameters.project_id }}
+          PROJECT_NAME: ${{ parameters.project_name }}
+          ORG_ID: ${{ parameters.org_id }}
           SERVICE_ACCOUNT_KEY: ${{ parameters.service_account_key }}
 
     - id: terraform-init
