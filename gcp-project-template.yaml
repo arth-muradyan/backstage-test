@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: terraform-gcp-project
   title: Create GCP Project (Terraform)
-  description: Runs Terraform commands using built-in shell action
+  description: Runs Terraform commands using built-in execute action
 spec:
   owner: users
   type: service
@@ -36,7 +36,7 @@ spec:
   steps:
     - id: write-terraform-files
       name: Write Terraform Files
-      action: shell
+      action: execute
       input:
         commands:
           - |
@@ -60,14 +60,14 @@ spec:
 
     - id: terraform-init
       name: Terraform Init
-      action: shell
+      action: execute
       input:
         commands:
           - terraform init
 
     - id: terraform-apply
       name: Terraform Apply
-      action: shell
+      action: execute
       input:
         commands:
           - terraform apply -auto-approve
