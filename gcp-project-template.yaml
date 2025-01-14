@@ -1,26 +1,33 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: terraform-gcp-project
-  title: Create GCP Project (Terraform)
-  description: Runs Terraform commands using built-in execute action
+  name: gcp-project-creation
+  title: Create GCP Project
+  description: This template creates a GCP project using Terraform.
+  tags:
+    - terraform
+    - gcp
 spec:
   owner: users
   type: service
   parameters:
-    - title: GCP Project Information
+    - title: Project Information
       properties:
         project_id:
           title: Project ID
-          description: GCP Project ID
+          description: Enter a unique GCP Project ID.
           type: string
         project_name:
           title: Project Name
-          description: Human-friendly name for the project
+          description: Enter the name of your GCP Project.
           type: string
-        org_id:
+        organization_id:
           title: Organization ID
-          description: GCP Organization ID
+          description: GCP Organization ID.
+          type: string
+        billing_account:
+          title: Billing Account
+          description: GCP Billing Account.
           type: string
         service_account_key:
           title: Service Account Key (JSON)
@@ -30,44 +37,51 @@ spec:
       required:
         - project_id
         - project_name
-        - org_id
+        - organization_id
+        - billing_account
         - service_account_key
 
   steps:
     - id: write-terraform-files
       name: Write Terraform Files
-      action: execute
+      action: custom:script
       input:
-        commands:
-          - |
-            cat > main.tf <<EOF
-            provider "google" {
-              credentials = "${SERVICE_ACCOUNT_KEY}"
-              project     = "${PROJECT_ID}"
-            }
+        script: |
+          echo 'provider "google" {
+            credentials = "${SERVICE_ACCOUNT_KEY}"
+            project     = "{{ parameters.project_id }}"
+            region      = "us-central1"
+          }' > main.tf
 
-            resource "google_project" "default" {
-              name       = "${PROJECT_NAME}"
-              project_id = "${PROJECT_ID}"
-              org_id     = "${ORG_ID}"
-            }
-            EOF
-        env:
-          PROJECT_ID: ${{ parameters.project_id }}
-          PROJECT_NAME: ${{ parameters.project_name }}
-          ORG_ID: ${{ parameters.org_id }}
-          SERVICE_ACCOUNT_KEY: ${{ parameters.service_account_key }}
+          echo 'resource "google_project" "default" {
+            name       = "{{ parameters.project_name }}"
+            project_id = "{{ parameters.project_id }}"
+            org_id     = "{{ parameters.organization_id }}"
+            billing_account = "{{ parameters.billing_account }}"
+          }' >> main.tf
+
+          echo 'variable "project_id" {}
+          variable "project_name" {}
+          variable "organization_id" {}
+          variable "billing_account" {}' > variables.tf
+
+    - id: export-service-account-key
+      name: Export Service Account Key
+      action: custom:script
+      input:
+        script: |
+          export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
 
     - id: terraform-init
-      name: Terraform Init
-      action: execute
+      name: Initialize Terraform
+      action: custom:script
       input:
-        commands:
-          - terraform init
+        script: |
+          terraform init
 
     - id: terraform-apply
-      name: Terraform Apply
-      action: execute
+      name: Apply Terraform Configuration
+      action: custom:script
       input:
-        commands:
-          - terraform apply -auto-approve
+        script: |
+          terraform apply -auto-approve
