@@ -1,77 +1,58 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: gcp-project-creation
-  title: Create GCP Project
-  description: This template creates a GCP project using Terraform.
-  tags:
-    - terraform
-    - gcp
+  name: terraform-gcp-project
+  title: Create GCP Project (Terraform)
+  description: Runs Terraform commands using built-in script-like actions
 spec:
-  owner: users
+  owner: team
   type: service
   parameters:
-    - title: Project Information
+    - title: GCP Project Information
       properties:
         project_id:
           title: Project ID
-          description: Enter a unique GCP Project ID.
-          type: string
-        project_name:
-          title: Project Name
-          description: Enter the name of your GCP Project.
-          type: string
-        organization_id:
-          title: Organization ID
-          description: GCP Organization ID.
-          type: string
-        billing_account:
-          title: Billing Account
-          description: GCP Billing Account.
           type: string
         service_account_key:
           title: Service Account Key (JSON)
-          description: Paste the full JSON key for your GCP service account.
           type: string
           format: password
       required:
         - project_id
-        - project_name
-        - organization_id
-        - billing_account
         - service_account_key
 
   steps:
-    - id: setup-terraform
-      name: Setup Terraform Files
-      action: scaffolder:publish:file
+    - id: write-terraform-files
+      name: Write Terraform Files
+      action: shell
       input:
-        files:
-          - path: main.tf
-            content: |
-              provider "google" {
-                credentials = "{{ parameters.service_account_key }}"
-                project     = "{{ parameters.project_id }}"
-                region      = "us-central1"
-              }
+        commands:
+          - |
+            cat > main.tf <<EOF
+            provider "google" {
+              credentials = "${SERVICE_ACCOUNT_KEY}"
+              project     = "${PROJECT_ID}"
+            }
 
-              resource "google_project" "default" {
-                name            = "{{ parameters.project_name }}"
-                project_id      = "{{ parameters.project_id }}"
-                org_id          = "{{ parameters.organization_id }}"
-                billing_account = "{{ parameters.billing_account }}"
-              }
+            resource "google_project" "default" {
+              name       = "Example GCP Project"
+              project_id = "${PROJECT_ID}"
+            }
+            EOF
+        env:
+          PROJECT_ID: ${{ parameters.project_id }}
+          SERVICE_ACCOUNT_KEY: ${{ parameters.service_account_key }}
 
     - id: terraform-init
-      name: Initialize Terraform
-      action: custom:terraform
+      name: Terraform Init
+      action: shell
       input:
-        terraformCommand: init
-        workingDirectory: .
+        commands:
+          - terraform init
 
     - id: terraform-apply
-      name: Apply Terraform Configuration
-      action: custom:terraform
+      name: Terraform Apply
+      action: shell
       input:
-        terraformCommand: apply -auto-approve
-        workingDirectory: .
+        commands:
+          - terraform apply -auto-approve
