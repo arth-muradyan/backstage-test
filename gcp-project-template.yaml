@@ -42,46 +42,36 @@ spec:
         - service_account_key
 
   steps:
-    - id: write-terraform-files
-      name: Write Terraform Files
-      action: custom:script
+    - id: setup-terraform
+      name: Setup Terraform Files
+      action: scaffolder:publish:file
       input:
-        script: |
-          echo 'provider "google" {
-            credentials = "${SERVICE_ACCOUNT_KEY}"
-            project     = "{{ parameters.project_id }}"
-            region      = "us-central1"
-          }' > main.tf
+        files:
+          - path: main.tf
+            content: |
+              provider "google" {
+                credentials = "{{ parameters.service_account_key }}"
+                project     = "{{ parameters.project_id }}"
+                region      = "us-central1"
+              }
 
-          echo 'resource "google_project" "default" {
-            name       = "{{ parameters.project_name }}"
-            project_id = "{{ parameters.project_id }}"
-            org_id     = "{{ parameters.organization_id }}"
-            billing_account = "{{ parameters.billing_account }}"
-          }' >> main.tf
-
-          echo 'variable "project_id" {}
-          variable "project_name" {}
-          variable "organization_id" {}
-          variable "billing_account" {}' > variables.tf
-
-    - id: export-service-account-key
-      name: Export Service Account Key
-      action: custom:script
-      input:
-        script: |
-          export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
+              resource "google_project" "default" {
+                name            = "{{ parameters.project_name }}"
+                project_id      = "{{ parameters.project_id }}"
+                org_id          = "{{ parameters.organization_id }}"
+                billing_account = "{{ parameters.billing_account }}"
+              }
 
     - id: terraform-init
       name: Initialize Terraform
-      action: custom:script
+      action: custom:terraform
       input:
-        script: |
-          terraform init
+        terraformCommand: init
+        workingDirectory: .
 
     - id: terraform-apply
       name: Apply Terraform Configuration
-      action: custom:script
+      action: custom:terraform
       input:
-        script: |
-          terraform apply -auto-approve
+        terraformCommand: apply -auto-approve
+        workingDirectory: .
