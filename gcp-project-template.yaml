@@ -44,7 +44,7 @@ spec:
   steps:
     - id: write-terraform-files
       name: Write Terraform Files
-      action: custom:script
+      action: executeShellCommand
       input:
         script: |
           echo 'provider "google" {
@@ -67,21 +67,21 @@ spec:
 
     - id: export-service-account-key
       name: Export Service Account Key
-      action: custom:script
+      action: executeShellCommand
       input:
         script: |
           export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
 
     - id: terraform-init
       name: Initialize Terraform
-      action: custom:script
+      action: executeShellCommand
       input:
         script: |
           terraform init
 
     - id: terraform-apply
       name: Apply Terraform Configuration
-      action: custom:script
+      action: executeShellCommand
       input:
         script: |
           terraform apply -auto-approve
