@@ -8,7 +8,7 @@ metadata:
     - terraform
     - gitlab
 spec:
-  owner: team@example.com
+  owner: users
   type: service
   parameters:
     - title: Terraform Variables
