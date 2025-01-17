@@ -1,87 +1,42 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: gcp-project-creation
-  title: Create GCP Project
-  description: This template creates a GCP project using Terraform.
+  name: terraform-deployment
+  title: Deploy Terraform
+  description: Trigger a GitLab pipeline to deploy a Terraform project with dynamic variables
   tags:
     - terraform
-    - gcp
+    - gitlab
 spec:
   owner: users
   type: service
   parameters:
-    - title: Project Information
+    - title: Terraform Variables
       properties:
-        project_id:
-          title: Project ID
-          description: Enter a unique GCP Project ID.
+        parent:
           type: string
-        project_name:
+          title: Parent Organization (e.g., Organizations/123456)
+        name:
+          type: string
           title: Project Name
-          description: Enter the name of your GCP Project.
+        gitlab_pipeline_url:
           type: string
-        organization_id:
-          title: Organization ID
-          description: GCP Organization ID.
-          type: string
-        billing_account:
-          title: Billing Account
-          description: GCP Billing Account.
-          type: string
-        service_account_key:
-          title: Service Account Key (JSON)
-          description: Paste the full JSON key for your GCP service account.
-          type: string
-          format: password
+          title: GitLab Pipeline Trigger URL
       required:
-        - project_id
-        - project_name
-        - organization_id
-        - billing_account
-        - service_account_key
-
+        - parent
+        - name
+        - gitlab_pipeline_url
   steps:
-    - id: write-terraform-files
-      name: Write Terraform Files
-      action: executeShellCommand
+    - id: deploy
+      name: Trigger GitLab Pipeline
+      action: http:request
       input:
-        script: |
-          echo 'provider "google" {
-            credentials = "${SERVICE_ACCOUNT_KEY}"
-            project     = "{{ parameters.project_id }}"
-            region      = "us-central1"
-          }' > main.tf
-
-          echo 'resource "google_project" "default" {
-            name       = "{{ parameters.project_name }}"
-            project_id = "{{ parameters.project_id }}"
-            org_id     = "{{ parameters.organization_id }}"
-            billing_account = "{{ parameters.billing_account }}"
-          }' >> main.tf
-
-          echo 'variable "project_id" {}
-          variable "project_name" {}
-          variable "organization_id" {}
-          variable "billing_account" {}' > variables.tf
-
-    - id: export-service-account-key
-      name: Export Service Account Key
-      action: executeShellCommand
-      input:
-        script: |
-          export SERVICE_ACCOUNT_KEY='{{ parameters.service_account_key }}'
-
-    - id: terraform-init
-      name: Initialize Terraform
-      action: executeShellCommand
-      input:
-        script: |
-          terraform init
-
-    - id: terraform-apply
-      name: Apply Terraform Configuration
-      action: executeShellCommand
-      input:
-        script: |
-          terraform apply -auto-approve
+        url: ${{ parameters.gitlab_pipeline_url }}
+        method: POST
+        headers:
+          PRIVATE-TOKEN: ${{ secrets.gitlab_token }}
+        body:
+          ref: main
+          variables:
+            TF_VAR_parent: ${{ parameters.parent }}
+            TF_VAR_name: ${{ parameters.name }}
