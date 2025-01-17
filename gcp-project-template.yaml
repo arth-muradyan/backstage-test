@@ -2,8 +2,8 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: terraform-deployment
-  title: Deploy Terraform via GitLab Pipeline
-  description: Trigger a GitLab pipeline to deploy a Terraform project
+  title: Deploy Terraform
+  description: Trigger a GitLab pipeline to deploy a Terraform project with dynamic variables
   tags:
     - terraform
     - gitlab
@@ -11,7 +11,7 @@ spec:
   owner: users
   type: service
   parameters:
-    - title: Terraform Variables
+    - title: Terraform Deployment Parameters
       properties:
         parent:
           type: string
@@ -19,33 +19,31 @@ spec:
         name:
           type: string
           title: Project Name
-        project_id:
-          type: string
-          title: GitLab Project ID
-          description: The numeric ID of the GitLab project
         branch:
           type: string
-          title: Git Branch
-          description: The branch in GitLab to trigger (e.g., main)
+          title: Branch to trigger (e.g., main)
           default: main
-        trigger_token:
+        repoUrl:
           type: string
-          title: Trigger Token
-          description: Your GitLab pipeline trigger token
+          title: GitLab Repository URL (e.g., https://gitlab.com/group/project)
+        projectId:
+          type: number
+          title: GitLab Project ID
       required:
         - parent
         - name
-        - project_id
         - branch
-        - trigger_token
+        - repoUrl
+        - projectId
   steps:
-    - id: deploy
+    - id: trigger-pipeline
       name: Trigger GitLab Pipeline
-      action: gitlab:trigger-pipeline
+      action: gitlab:pipeline:trigger
       input:
-        projectId: ${{ parameters.project_id }}
+        repoUrl: ${{ parameters.repoUrl }}
+        token: ${{ secrets.gitlab_token }}
+        projectId: ${{ parameters.projectId }}
         branch: ${{ parameters.branch }}
-        token: ${{ parameters.trigger_token }}
         variables:
           TF_VAR_parent: ${{ parameters.parent }}
           TF_VAR_name: ${{ parameters.name }}
