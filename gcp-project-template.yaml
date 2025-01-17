@@ -29,12 +29,17 @@ spec:
         projectId:
           type: number
           title: GitLab Project ID
+        tokenDescription:
+          type: string
+          title: Description of the Pipeline Token
+          default: Backstage Pipeline Trigger
       required:
         - parent
         - name
         - branch
         - repoUrl
         - projectId
+        - tokenDescription
   steps:
     - id: trigger-pipeline
       name: Trigger GitLab Pipeline
@@ -44,6 +49,7 @@ spec:
         token: ${{ secrets.gitlab_token }}
         projectId: ${{ parameters.projectId }}
         branch: ${{ parameters.branch }}
+        tokenDescription: ${{ parameters.tokenDescription }}
         variables:
           TF_VAR_parent: ${{ parameters.parent }}
           TF_VAR_name: ${{ parameters.name }}
