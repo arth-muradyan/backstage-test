@@ -2,13 +2,13 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: terraform-deployment
-  title: Deploy Terraform
-  description: Trigger a GitLab pipeline to deploy a Terraform project with dynamic variables
+  title: Deploy Terraform via GitLab Pipeline
+  description: Trigger a GitLab pipeline to deploy a Terraform project
   tags:
     - terraform
     - gitlab
 spec:
-  owner: users
+  owner: team@example.com
   type: service
   parameters:
     - title: Terraform Variables
@@ -19,24 +19,33 @@ spec:
         name:
           type: string
           title: Project Name
-        gitlab_pipeline_url:
+        project_id:
           type: string
-          title: GitLab Pipeline Trigger URL
+          title: GitLab Project ID
+          description: The numeric ID of the GitLab project
+        branch:
+          type: string
+          title: Git Branch
+          description: The branch in GitLab to trigger (e.g., main)
+          default: main
+        trigger_token:
+          type: string
+          title: Trigger Token
+          description: Your GitLab pipeline trigger token
       required:
         - parent
         - name
-        - gitlab_pipeline_url
+        - project_id
+        - branch
+        - trigger_token
   steps:
     - id: deploy
       name: Trigger GitLab Pipeline
-      action: http:request
+      action: gitlab:trigger-pipeline
       input:
-        url: ${{ parameters.gitlab_pipeline_url }}
-        method: POST
-        headers:
-          PRIVATE-TOKEN: ${{ secrets.gitlab_token }}
-        body:
-          ref: main
-          variables:
-            TF_VAR_parent: ${{ parameters.parent }}
-            TF_VAR_name: ${{ parameters.name }}
+        projectId: ${{ parameters.project_id }}
+        branch: ${{ parameters.branch }}
+        token: ${{ parameters.trigger_token }}
+        variables:
+          TF_VAR_parent: ${{ parameters.parent }}
+          TF_VAR_name: ${{ parameters.name }}
