@@ -19,6 +19,9 @@ spec:
         name:
           type: string
           title: Project Name
+        billing_account:
+          type: string
+          title: Billing Account ID (e.g., 012345-678901-234567)
         branch:
           type: string
           title: Branch to trigger (e.g., main)
@@ -36,6 +39,7 @@ spec:
       required:
         - parent
         - name
+        - billing_account
         - branch
         - repoUrl
         - projectId
@@ -53,3 +57,4 @@ spec:
         variables:
           TF_VAR_parent: ${{ parameters.parent }}
           TF_VAR_name: ${{ parameters.name }}
+          TF_VAR_billing_account: ${{ parameters.billing_account }}
