@@ -1,0 +1,96 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: terraform-deployment-2
+  title: Deploy Terraform-2
+  description: Trigger a GitLab pipeline to deploy a Terraform project with dynamic variables
+  tags:
+    - terraform
+    - gitlab
+spec:
+  owner: users
+  type: service
+  parameters:
+    - title: Terraform Deployment Parameters
+      properties:
+        parent:
+          type: string
+          title: Parent Organization
+          enum:
+            - Organizations/123456
+            - Organizations/789012
+            - Organizations/345678
+            - Organizations/901234
+        name:
+          type: string
+          title: Project Name
+          enum:
+            - dev-environment
+            - staging-environment
+            - prod-environment
+            - shared-services
+            - data-platform
+        billing_account:
+          type: string
+          title: Billing Account ID
+          enum:
+            - '012345-678901-234567'
+            - '234567-890123-456789'
+            - '456789-012345-678901'
+            - '678901-234567-890123'
+        branch:
+          type: string
+          title: Branch to trigger
+          enum:
+            - main
+            - develop
+            - staging
+            - production
+          default: main
+        repoUrl:
+          type: string
+          title: GitLab Repository URL
+          enum:
+            - 'https://gitlab.com/infra/terraform-modules'
+            - 'https://gitlab.com/infra/cloud-platform'
+            - 'https://gitlab.com/infra/deployment-scripts'
+            - 'https://gitlab.com/infra/infrastructure-as-code'
+        projectId:
+          type: number
+          title: GitLab Project ID
+          enum:
+            - 12345
+            - 23456
+            - 34567
+            - 45678
+        tokenDescription:
+          type: string
+          title: Description of the Pipeline Token
+          enum:
+            - 'Backstage Pipeline Trigger'
+            - 'Development Pipeline Token'
+            - 'Staging Pipeline Token'
+            - 'Production Pipeline Token'
+          default: 'Backstage Pipeline Trigger'
+      required:
+        - parent
+        - name
+        - billing_account
+        - branch
+        - repoUrl
+        - projectId
+        - tokenDescription
+  steps:
+    - id: trigger-pipeline
+      name: Trigger GitLab Pipeline
+      action: gitlab:pipeline:trigger
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        token: ${{ secrets.gitlab_token }}
+        projectId: ${{ parameters.projectId }}
+        branch: ${{ parameters.branch }}
+        tokenDescription: ${{ parameters.tokenDescription }}
+        variables:
+          TF_VAR_parent: ${{ parameters.parent }}
+          TF_VAR_name: ${{ parameters.name }}
+          TF_VAR_billing_account: ${{ parameters.billing_account }}
