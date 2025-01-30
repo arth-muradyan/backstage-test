@@ -1,7 +1,7 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: terraform-deployment-2
+  name: gcp-project-template-2
   title: Deploy Terraform-2
   description: Trigger a GitLab pipeline to deploy a Terraform project with dynamic variables
   tags:
