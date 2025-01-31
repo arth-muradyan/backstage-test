@@ -16,22 +16,34 @@ spec:
         parent:
           type: string
           title: Parent Organization (e.g., Organizations/123456)
+          enum:
+            - organizations/579983338372
         name:
           type: string
           title: Project Name
         billing_account:
           type: string
           title: Billing Account ID (e.g., 012345-678901-234567)
+          enum:
+            - 013CA1-57EFDA-D1C2D4
         branch:
           type: string
           title: Branch to trigger (e.g., main)
-          default: main
+          enum:
+            - main
+            - develop
+            - staging
+            - production
         repoUrl:
           type: string
           title: GitLab Repository URL (e.g., https://gitlab.com/group/project)
+          enum:
+            - https://git.tmaws.io/public-cloud/tmp-livenation/infrastructure/gcp
         projectId:
           type: number
           title: GitLab Project ID
+          enum:
+            - 12345678
         tokenDescription:
           type: string
           title: Description of the Pipeline Token
