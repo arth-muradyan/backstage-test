@@ -38,7 +38,7 @@ spec:
           type: string
           title: GitLab Repository URL (e.g., https://gitlab.com/group/project)
           enum:
-            - https://git.tmaws.io/public-cloud/tmp-livenation/infrastructure/gcp
+            - https://git.tmaws.io/public-cloud/tmp-livenation/infrastructure/gcp/project-creation-automation
         projectId:
           type: number
           title: GitLab Project ID
