@@ -44,7 +44,7 @@ spec:
           type: number
           title: GitLab Project ID
           enum:
-            - 12345678
+            - 50811
             - 66242570
         tokenDescription:
           type: string
