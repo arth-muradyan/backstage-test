@@ -39,11 +39,13 @@ spec:
           title: GitLab Repository URL (e.g., https://gitlab.com/group/project)
           enum:
             - https://git.tmaws.io/public-cloud/tmp-livenation/infrastructure/gcp/project-creation-automation
+            - https://gitlab.com/arth.muradyan/backstage-test/-/blob/main
         projectId:
           type: number
           title: GitLab Project ID
           enum:
             - 12345678
+            - 66242570
         tokenDescription:
           type: string
           title: Description of the Pipeline Token
