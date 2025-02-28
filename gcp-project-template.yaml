@@ -17,7 +17,7 @@ spec:
           type: string
           title: Parent Organization (e.g., Organizations/123456)
           enum:
-            - organizations/579983338372
+            - organizations/608903108371
         name:
           type: string
           title: Project Name
