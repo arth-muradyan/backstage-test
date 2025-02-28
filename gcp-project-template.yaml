@@ -25,7 +25,7 @@ spec:
           type: string
           title: Billing Account ID (e.g., 012345-678901-234567)
           enum:
-            - 013CA1-57EFDA-D1C2D4
+            - 013BF1-64C8A0-B5CD6D
         branch:
           type: string
           title: Branch to trigger (e.g., main)
